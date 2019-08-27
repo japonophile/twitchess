@@ -1,0 +1,2 @@
+python-chess==0.23.6
+numpy==1.17.1
