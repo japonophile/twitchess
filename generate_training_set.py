@@ -16,7 +16,7 @@ def get_dataset(num_samples=None):
             except:
                 pass
             if game is None:
-                continue
+                break
             res = game.headers['Result']
             if res not in values:
                 continue

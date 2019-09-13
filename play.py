@@ -1,5 +1,9 @@
 import chess
+import chess.svg
+import time
 import torch
+import traceback
+from flask import Flask, Response, request
 from state import State
 from train import Net
 
@@ -24,13 +28,63 @@ def explore_leaves(s, v):
         s.board.pop()
     return ret
 
-if __name__ == "__main__":
-    v = Valuator()
-    s = State()
-    while not s.board.is_game_over():
-        l = sorted(explore_leaves(s, v), key=lambda x: x[0], reverse=s.board.turn)
-        move = l[0]
+
+# chess board and "engine"
+v = Valuator()
+s = State()
+
+def computer_move():
+    moves = sorted(explore_leaves(s, v), key=lambda x: x[0], reverse=s.board.turn)
+    if len(moves) > 0:
+        move = moves[0]
         print(move)
         s.board.push(move[1])
-    print(s.board.result())
+    else:
+        print("No move left")
+
+
+app = Flask(__name__)
+@app.route("/")
+def hello():
+    ret = '<html>'
+    ret += '<head><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script></head>'
+    ret += '<body>'
+    ret += '<img width=600 height=600 src="/board.svg?%f"></img><br />' % time.time()
+    ret += '<form action="/move"><input name="move" type="text"></input><input type="submit" value="Move"></input></form>'
+    ret += '</body>'
+    ret += '</html>'
+    return ret
+
+@app.route("/board.svg")
+def board():
+    return Response(chess.svg.board(board=s.board), mimetype='image/svg+xml')
+
+@app.route("/move")
+def move():
+    if not s.board.is_game_over():
+        move = request.args.get('move', default='')
+        if move is not None and move != '':
+            print("human moves", move)
+            try:
+                s.board.push_san(move)
+                computer_move()
+            except Exception:
+                traceback.print_exc()
+    else:
+        print("GAME IS OVER")
+    return hello()
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
+
+"""
+# self play
+while not s.board.is_game_over():
+    l = sorted(explore_leaves(s, v), key=lambda x: x[0], reverse=s.board.turn)
+    move = l[0]
+    print(move)
+    s.board.push(move[1])
+print(s.board.result())
+"""
 
