@@ -63,5 +63,3 @@ class State(object):
 
 if __name__ == "__main__":
     s = State()
-    # print(s.edges())
-    print(s.serialize())
