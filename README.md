@@ -1,3 +1,46 @@
+# twitchess
+
+A toy implementation of neural network chess written while livestreaming.
+
+<img width=600px src="https://raw.githubusercontent.com/japonophile/twitchess/master/board.png" />
+
+Stream
+-----
+
+https://www.twitch.tv/tomcr00s3
+
+
+Usage
+-----
+
+```
+$ pip install -r requirements.txt
+$ python play.py   # runs web server on http://localhost:5000
+```
+
+
+Implementation
+-----
+
+twitchess is a simple 1 look ahead neural network value function.  The trained net is nets/value.pth.  It takes in a serialized board and outputs a range from -1 to 1.  -1 means black wins, 1 means white wins.
+
+
+Serialization
+-----
+
+We serialize the board into an 8x8x5 bitvector.  See state.py for how.
+
+
+Training Set
+-----
+
+The value network is trained on 10M board positions from http://www.kingbase-chess.net/
+
+
+
+
+
+
 # Zero Knowledge Chess Engine (liar!)
 
 ## Memo

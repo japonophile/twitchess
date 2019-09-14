@@ -30,11 +30,15 @@ def explore_leaves(s, v):
     return ret
 
 
+def to_svg(s):
+    return base64.b64encode(chess.svg.board(board=s.board).encode('utf-8')).decode('utf-8')
+
+
 # chess board and "engine"
 v = Valuator()
 s = State()
 
-def computer_move():
+def computer_move(s, v):
     moves = sorted(explore_leaves(s, v), key=lambda x: x[0], reverse=s.board.turn)
     print('Top 3:')
     for i, m in enumerate(moves[0:3]):
@@ -48,17 +52,33 @@ def computer_move():
 
 
 app = Flask(__name__)
+
+
 @app.route("/")
 def hello():
-    board_svg = base64.b64encode(chess.svg.board(board=s.board).encode('utf-8')).decode('utf-8')
     ret = '<html>'
-    ret += '<head><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script></head>'
     ret += '<body>'
-    ret += '<img width=600 height=600 src="data:image/svg+xml;base64,%s"></img><br />' % board_svg
+    ret += '<img width=600 height=600 src="data:image/svg+xml;base64,%s"></img><br />' % to_svg(s)
     ret += '<form action="/move"><input name="move" type="text"></input><input type="submit" value="Move"></input></form>'
     ret += '</body>'
     ret += '</html>'
     return ret
+
+
+@app.route("/selfplay")
+def selfplay():
+    s = State()
+
+    ret = '<html>'
+    ret += '<body>'
+    while not s.board.is_game_over():
+        computer_move(s, v)
+        ret += '<img width=600 height=600 src="data:image/svg+xml;base64,%s"></img><br />' % to_svg(s)
+    ret += '</body>'
+    ret += '</html>'
+
+    return ret
+
 
 @app.route("/move")
 def move():
@@ -68,7 +88,7 @@ def move():
             print("human moves", move)
             try:
                 s.board.push_san(move)
-                computer_move()
+                computer_move(s, v)
             except Exception:
                 traceback.print_exc()
     else:
@@ -78,14 +98,3 @@ def move():
 
 if __name__ == "__main__":
     app.run(debug=True)
-
-"""
-# self play
-while not s.board.is_game_over():
-    l = sorted(explore_leaves(s, v), key=lambda x: x[0], reverse=s.board.turn)
-    move = l[0]
-    print(move)
-    s.board.push(move[1])
-print(s.board.result())
-"""
-
