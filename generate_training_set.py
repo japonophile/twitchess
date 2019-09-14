@@ -34,7 +34,7 @@ def get_dataset(num_samples=None):
     return X, Y
 
 if __name__ == "__main__":
-    for n, suf in [(1000, '1k'), (1e6, '1M'), (None, 'full')]:
+    for n, suf in [(1000, '1k'), (1e6, '1M'), (10e6, '10M')]:
         print('generate %s' % suf)
         X, Y = get_dataset(n)
         np.savez('processed/dataset_%s.npz' % suf, X, Y)
