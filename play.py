@@ -57,9 +57,11 @@ app = Flask(__name__)
 @app.route("/")
 def hello():
     ret = '<html>'
+    ret += '<head><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script></head>'
     ret += '<body>'
     ret += '<img width=600 height=600 src="data:image/svg+xml;base64,%s"></img><br />' % to_svg(s)
-    ret += '<form action="/move"><input name="move" type="text"></input><input type="submit" value="Move"></input></form>'
+    ret += '<form action="/move"><input id="move" name="move" type="text"></input><input type="submit" value="Move"></input></form>'
+    ret += '<script>$(function() { var input = document.getElementById("move"); input.focus(); input.select(); }); </script>'
     ret += '</body>'
     ret += '</html>'
     return ret
