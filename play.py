@@ -1,3 +1,4 @@
+import base64
 import chess
 import chess.svg
 import time
@@ -35,6 +36,9 @@ s = State()
 
 def computer_move():
     moves = sorted(explore_leaves(s, v), key=lambda x: x[0], reverse=s.board.turn)
+    print('Top 3:')
+    for i, m in enumerate(moves[0:3]):
+        print('  ', m)
     if len(moves) > 0:
         move = moves[0]
         print(move)
@@ -46,18 +50,15 @@ def computer_move():
 app = Flask(__name__)
 @app.route("/")
 def hello():
+    board_svg = base64.b64encode(chess.svg.board(board=s.board).encode('utf-8')).decode('utf-8')
     ret = '<html>'
     ret += '<head><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script></head>'
     ret += '<body>'
-    ret += '<img width=600 height=600 src="/board.svg?%f"></img><br />' % time.time()
+    ret += '<img width=600 height=600 src="data:image/svg+xml;base64,%s"></img><br />' % board_svg
     ret += '<form action="/move"><input name="move" type="text"></input><input type="submit" value="Move"></input></form>'
     ret += '</body>'
     ret += '</html>'
     return ret
-
-@app.route("/board.svg")
-def board():
-    return Response(chess.svg.board(board=s.board), mimetype='image/svg+xml')
 
 @app.route("/move")
 def move():
